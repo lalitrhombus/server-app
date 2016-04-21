@@ -1,6 +1,8 @@
 'use strict';
 const http = require('http');
 const url = require('url');
+const qs = require('querystring');
+
 
 let route ={
   'GET':{
@@ -18,7 +20,24 @@ let route ={
     }
   },
   'POST':{
-
+      '/api/login':(req,res)=>{
+        let body='';
+        req.on('data',data=>{
+          body+=data;
+          console.log(body.length);
+          if(body.length> 1000000){
+            res.writeHead(413,{'Content-type':'text/html'});
+            res.end('<h3>exceed limit</h3>');
+            req.connection.destroy();
+          }
+        });        
+        req.on('end',()=>{
+          let params = qs.parse(body);
+          console.log(params["username"]);
+          console.log(params["password"]);
+          res.end();
+        })
+      }
   },
   'NA':(req,res)=>{
     res.writeHead(404);
